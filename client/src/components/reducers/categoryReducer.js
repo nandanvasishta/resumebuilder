@@ -9,7 +9,14 @@ const initialState = {
   languagesInfo: [],
   interestsInfo: [],
   referencesInfo: [],
+  photo: null, // Added photo state
 };
+
+// Action Creator for updating photo
+export const updatePhoto = (photo) => ({
+  type: "UPDATE_PHOTO",
+  payload: photo,
+});
 
 const categoryReducer = (state = initialState, action) => {
   console.log(`Action Type: ${action.type}`, "Payload:", action.payload || "No Payload");
@@ -59,6 +66,9 @@ const categoryReducer = (state = initialState, action) => {
 
     case "UPDATE_REFERENCES":
       return { ...state, referencesInfo: [...state.referencesInfo, action.payload ?? {}] };
+
+    case "UPDATE_PHOTO":
+      return { ...state, photo: action.payload }; // ✅ Handling photo update
 
     case "RESET_RESUME":
       return { ...initialState };

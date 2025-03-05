@@ -1,13 +1,25 @@
 import React from "react";
 import "./ResumeStyles.css"; // Import CSS for styling
 
-const Template4 = ({ data }) => {
+const Template4 = ({ data, aiSummary }) => {
   if (!data) return <p>No Data Available</p>;
 
   return (
     <div className="resume-template-4">
       {/* Sidebar Section */}
       <div className="resume-sidebar">
+        {data.personal?.photo && (
+          <img
+            src={data.personal.photo}
+            alt="Profile"
+            className="resume-photo"
+            onError={(e) => {
+              console.error("❌ Image failed to load:", e.target.src);
+              e.target.onerror = null;
+              e.target.src = "/default-profile.png";
+            }}
+          />
+        )}
         <h1>{data.personal?.name || "Your Name"}</h1>
         <p>{data.personal?.email || "your.email@example.com"}</p>
         <p>{data.personal?.phone || "123-456-7890"}</p>
@@ -51,6 +63,14 @@ const Template4 = ({ data }) => {
 
       {/* Main Content Section */}
       <div className="resume-main">
+        {/* AI Summary Section */}
+        {aiSummary && (
+          <div className="resume-section ai-summary">
+            <h2>Description</h2>
+            <p>{aiSummary}</p>
+          </div>
+        )}
+
         {/* Education Section */}
         {Array.isArray(data.education) && data.education.length > 0 && (
           <div className="resume-section">

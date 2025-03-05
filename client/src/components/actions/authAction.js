@@ -18,7 +18,7 @@ export const signup = (username, email, password) => async dispatch => {
       password,
     }, { withCredentials: true });
 
-    if (response.data.message === "User created successfully") {
+    if (response.data?.message === "User created successfully") {
       dispatch({ type: SIGNUP_SUCCESS });
       return Promise.resolve(response.data.message);
     } else {
@@ -27,7 +27,7 @@ export const signup = (username, email, password) => async dispatch => {
     }
   } catch (error) {
     const errorMessage = error.response?.data?.message || "Signup failed";
-    console.error("Signup error:", errorMessage);
+    console.error("❌ Signup error:", errorMessage);
     dispatch({ type: SIGNUP_FAILURE, payload: errorMessage });
     return Promise.reject(errorMessage);
   }
@@ -41,19 +41,18 @@ export const login = (email, password) => async dispatch => {
       password,
     }, { withCredentials: true });
 
-    if (response.data.message === "Login successful") {
-      const token = response.data.token;
-      localStorage.setItem('token', token);  // Store token in localStorage
+    console.log("🔹 Login Response:", response.data); // Debugging
 
-      dispatch({ type: LOGIN_SUCCESS, payload: { token } });
-      return Promise.resolve(token);
+    if (response.data?.message === "Login successful" && response.data?.user) {
+      dispatch({ type: LOGIN_SUCCESS, payload: { user: response.data.user } });
+      return Promise.resolve(response.data.user);
     } else {
-      dispatch({ type: LOGIN_FAILURE });
-      return Promise.reject("Login failed");
+      dispatch({ type: LOGIN_FAILURE, payload: response.data?.message || "Login failed" });
+      return Promise.reject(response.data?.message || "Login failed");
     }
   } catch (error) {
     const errorMessage = error.response?.data?.message || "Login failed";
-    console.error("Login error:", errorMessage);
+    console.error("❌ Login error:", errorMessage);
     dispatch({ type: LOGIN_FAILURE, payload: errorMessage });
     return Promise.reject(errorMessage);
   }
@@ -61,6 +60,5 @@ export const login = (email, password) => async dispatch => {
 
 // **Logout Action**
 export const logout = () => {
-  localStorage.removeItem('token');
   return { type: LOGOUT_SUCCESS };
 };

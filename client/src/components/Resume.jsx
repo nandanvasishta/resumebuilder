@@ -5,23 +5,49 @@ import Template2 from "./Template2";
 import Template3 from "./Template3";
 import Template4 from "./Template4";
 import Template5 from "./Template5";
-import ResumeOptimizer from "./ResumeOptimizer"; // ✅ Import AI Optimizer
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import axios from "axios";
 
 const Resume = () => {
   const resumeRef = useRef(null);
   const [atsScore, setAtsScore] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState("template1");
+  const [jobRole, setJobRole] = useState("");
+  const [aiSummary, setAiSummary] = useState("");
+  const [profileImage, setProfileImage] = useState("");
 
+  // Fetch Redux State
+  const photo = useSelector((state) => state.category.photo || "");
   const resumeData = useSelector((state) => state.category);
 
   useEffect(() => {
     console.log("📢 Redux Updated State:", resumeData);
-  }, [resumeData]);
+    console.log("📸 Photo in Redux:", photo);
+
+    // Convert image URL to Base64 for proper rendering
+    const toBase64 = async (url) => {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onloadend = () => resolve(reader.result);
+        });
+      } catch (error) {
+        console.error("Error converting image to Base64:", error);
+        return "";
+      }
+    };
+
+    if (photo) {
+      toBase64(photo).then((base64) => setProfileImage(base64));
+    }
+  }, [resumeData, photo]);
 
   const data = useMemo(() => ({
     personal: {
@@ -30,67 +56,45 @@ const Resume = () => {
       phone: resumeData.personal?.phoneNumber || "123-456-7890",
       linkedin: resumeData.personal?.linkedin || "",
       github: resumeData.personal?.github || "",
-      address: resumeData.personal?.address || "Your Address",
+      photo: profileImage || "",
     },
     education: resumeData.educationInfo || [],
     experience: resumeData.experienceInfo || [],
     skills: resumeData.skillsInfo || [],
     projects: resumeData.projectsInfo || [],
-    certificates: resumeData.certificatesInfo || [],
-    achievements: resumeData.achievementsInfo || [],
-    languages: resumeData.languagesInfo || [],
-    interests: resumeData.interestsInfo || [],
-    references: resumeData.referencesInfo || [],
-  }), [resumeData]);
+    certificates: resumeData.certificatesInfo || [], // ✅ Added Certificates
+    achievements: resumeData.achievementsInfo || [], // ✅ Added Achievements
+    languages: resumeData.languagesInfo || [], // ✅ Added Languages
+    interests: resumeData.interestsInfo || [], // ✅ Added Interests
+    references: resumeData.referencesInfo || [], // ✅ Added References
+  }), [resumeData, profileImage]);
 
-  // Calculate ATS Score (Normalized to 100%)
-  const calculateATSScore = useCallback(() => {
-    let score = 0;
-    let maxScore = 100; // Ensure score does not exceed 100%
+  const fetchAISummary = useCallback(async () => {
+    if (!jobRole.trim()) {
+      alert("Please enter a job role for AI resume summary!");
+      return;
+    }
 
-    const sectionWeights = {
-      email: 10,
-      linkedin: 10,
-      github: 0,
-      education: 10,
-      experience: 15,
-      skills: 10,
-      projects: 10,
-      certificates: 5,
-      achievements: 5,
-      languages: 5,
-      references: 5,
-      interests: 5,
-    };
+    try {
+      console.log("🔄 Fetching AI Summary...");
+      const response = await axios.post("http://localhost:5001/ai/generate-summary", { jobRole, resumeData: data });
 
-    if (data.personal.email) score += sectionWeights.email;
-    if (data.personal.linkedin) score += sectionWeights.linkedin;
-    if (data.personal.github) score += sectionWeights.github;
-    if (data.education.length) score += sectionWeights.education;
-    if (data.experience.length) score += sectionWeights.experience;
-    if (data.skills.length >= 5) score += sectionWeights.skills;
-    if (data.projects.length) score += sectionWeights.projects;
-    if (data.certificates.length) score += sectionWeights.certificates;
-    if (data.achievements.length) score += sectionWeights.achievements;
-    if (data.languages.length) score += sectionWeights.languages;
-    if (data.references.length) score += sectionWeights.references;
-    if (data.interests.length) score += sectionWeights.interests;
+      console.log("✅ AI Summary Response:", response.data);
+      setAiSummary(response.data.summary);
+    } catch (error) {
+      console.error("❌ AI Summary Fetch Error:", error.response?.data || error.message);
+      alert(`Error: ${error.response?.data?.error || "Something went wrong"}`);
+    }
+  }, [jobRole, data]);
 
-    // Normalize to 100%
-    const atsPercentage = Math.min((score / maxScore) * 100, 100);
-    console.log("Final ATS Score:", atsPercentage);
-    return atsPercentage.toFixed(2);
-  }, [data]);
-
-  useEffect(() => {
-    setAtsScore(calculateATSScore());
-  }, [calculateATSScore]);
-
-  // Generate PDF
   const generatePDF = useCallback(() => {
     if (!resumeRef.current) return;
 
-    html2canvas(resumeRef.current, { scale: 2 }).then((canvas) => {
+    html2canvas(resumeRef.current, { 
+      scale: 2,
+      useCORS: true, 
+      allowTaint: true,
+    }).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -101,17 +105,16 @@ const Resume = () => {
     });
   }, []);
 
-  // Render Selected Template
   const renderSelectedTemplate = useMemo(() => {
     const templates = {
-      template1: <Template1 data={data} />,
-      template2: <Template2 data={data} />,
-      template3: <Template3 data={data} />,
-      template4: <Template4 data={data} />,
-      template5: <Template5 data={data} />,
+      template1: <Template1 data={data} aiSummary={aiSummary} />,
+      template2: <Template2 data={data} aiSummary={aiSummary} />,
+      template3: <Template3 data={data} aiSummary={aiSummary} />,
+      template4: <Template4 data={data} aiSummary={aiSummary} />,
+      template5: <Template5 data={data} aiSummary={aiSummary} />,
     };
-    return templates[selectedTemplate] || <Template1 data={data} />;
-  }, [selectedTemplate, data]);
+    return templates[selectedTemplate] || <Template1 data={data} aiSummary={aiSummary} />;
+  }, [selectedTemplate, data, aiSummary]);
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
@@ -125,12 +128,20 @@ const Resume = () => {
         <MenuItem value="template5">Template 5</MenuItem>
       </Select>
 
-      <Button variant="contained" onClick={generatePDF} style={{ margin: "10px" }}>
-        Download PDF
+      <input
+        type="text"
+        placeholder="Enter job role"
+        value={jobRole}
+        onChange={(e) => setJobRole(e.target.value)}
+        style={{ margin: "10px", padding: "5px" }}
+      />
+      <Button variant="contained" onClick={fetchAISummary}>
+        Generate AI Summary
       </Button>
 
-      {/* ✅ AI Resume Optimizer Integration */}
-      <ResumeOptimizer />
+      <Button variant="contained" onClick={generatePDF}>
+        Download PDF
+      </Button>
 
       <div ref={resumeRef}>{renderSelectedTemplate}</div>
     </div>

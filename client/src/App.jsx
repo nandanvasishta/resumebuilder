@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import Home from './components/Home';
@@ -14,31 +14,31 @@ import Logout from './components/Logout';
 import Languages from './components/categories/Languages';
 import References from './components/categories/References';
 import Interests from './components/categories/Interests';
-import ResumeOptimizer from './components/ResumeOptimizer'; // ✅ Added AI Optimizer
+import PhotoUpload from './components/categories/PhotoUpload';
 
 function App() {
-  return (  
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/personal" element={<Personal />} />
-          <Route path="/education" element={<Education />} />
-          <Route path='/experience' element={<Experience />} />
-          <Route path='/skills' element={<Skills />} />
-          <Route path='/projects' element={<Projects />} />
-          <Route path='/certify' element={<Certificates />} />
-          <Route path='/achieve' element={<Achievements />} />
-          <Route path='/resume' element={<Resume />} />
-          <Route path='/logout' element={<Logout />} />
-          <Route path='/languages' element={<Languages />} />
-          <Route path='/references' element={<References />} />
-          <Route path='/interests' element={<Interests />} />
-          <Route path='/resume-optimizer' element={<ResumeOptimizer />} /> {/* ✅ New Route */}
-        </Routes>
-      </BrowserRouter>
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/home" element={<Navigate replace to="/" />} /> {/* ✅ Redirect /home to / */}
+        <Route path="/personal" element={<Personal />} />
+        <Route path="/education" element={<Education />} />
+        <Route path='/experience' element={<Experience />} />
+        <Route path='/skills' element={<Skills />} />
+        <Route path='/projects' element={<Projects />} />
+        <Route path='/certificates' element={<Certificates />} /> {/* ✅ Renamed */}
+        <Route path='/achievements' element={<Achievements />} /> {/* ✅ Renamed */}
+        <Route path='/resume' element={<Resume />} />
+        <Route path='/logout' element={<Logout />} />
+        <Route path='/languages' element={<Languages />} />
+        <Route path='/references' element={<References />} />
+        <Route path='/interests' element={<Interests />} />
+        <Route path='/upload-photo' element={<PhotoUpload />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

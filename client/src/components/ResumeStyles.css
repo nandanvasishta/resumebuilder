@@ -50,7 +50,16 @@
   background-color: #0073e6;
   color: white;
   border-radius: 5px;
+}.resume-photo {
+  width: 120px; /* Adjust size as needed */
+  height: 120px; /* Maintain square shape */
+  border-radius: 50%; /* Ensures the image is circular */
+  object-fit: cover; /* Ensures the image fills the circle without distortion */
+  border: 3px solid white; /* Optional: adds a white border */
+  display: block;
+  margin: 0 auto 15px; /* Centers the image */
 }
+
 
 /* Template 2 */
 .resume-container.template2 {

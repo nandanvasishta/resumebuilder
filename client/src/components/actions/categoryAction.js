@@ -47,3 +47,8 @@ export const updateReferences = (references) => ({
   type: "UPDATE_REFERENCES",
   payload: references,
 });
+
+export const updatePhoto = (photo) => ({
+  type: "UPDATE_PHOTO",
+  payload: photo,
+});

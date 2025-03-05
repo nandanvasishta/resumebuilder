@@ -42,7 +42,7 @@ const Projects = () => {
 
   const handleClick = () => {
     dispatch(updateProjects(projects)); // ✅ Fixed Dispatch
-    navigate("/certify");
+    navigate("/certificates");
   };
 
   return (

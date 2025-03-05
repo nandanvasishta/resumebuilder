@@ -1,18 +1,38 @@
 import React from "react";
 import "./ResumeStyles.css"; // Import CSS for styling
 
-const Template3 = ({ data }) => {
+const Template3 = ({ data, aiSummary }) => {
   if (!data) return <p>No Data Available</p>;
 
   return (
     <div className="resume-container">
       {/* Header Section */}
       <div className="resume-header">
+        {data.personal?.photo && (
+          <img
+            src={data.personal.photo}
+            alt="Profile"
+            className="resume-photo"
+            onError={(e) => {
+              console.error("❌ Image failed to load:", e.target.src);
+              e.target.onerror = null;
+              e.target.src = "/default-profile.png"; // Fallback image
+            }}
+          />
+        )}
         <h1>{data.personal?.name || "Your Name"}</h1>
         <p>
           {data.personal?.email || "your.email@example.com"} | {data.personal?.phone || "123-456-7890"}
         </p>
       </div>
+
+      {/* AI Summary Section */}
+      {aiSummary && (
+        <div className="resume-section ai-summary">
+          <h2>Description</h2>
+          <p>{aiSummary}</p>
+        </div>
+      )}
 
       {/* Sidebar for Summary */}
       {data.personal?.summary && (
@@ -108,6 +128,19 @@ const Template3 = ({ data }) => {
           </div>
         </div>
       )}
+
+      {/* Achievements Section ✅ */}
+      {data.achievements?.length > 0 && (
+          <div className="resume-section">
+            <h2>Achievements</h2>
+            {data.achievements[0].map((achieve, index) => (
+              <div key={index} className="resume-item">
+                <h3>{achieve.award}</h3>
+                {achieve.achievementLink && <a href={achieve.achievementLink}>Achievement Link</a>}
+              </div>
+            ))}
+          </div>
+        )}
 
       {/* References Section */}
       {data.references?.length > 0 && (

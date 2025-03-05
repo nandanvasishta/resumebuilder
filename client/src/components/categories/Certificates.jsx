@@ -43,7 +43,7 @@ const Certificates = () => {
 
   const handleClick = () => {
     dispatch(updateCertificates(certificates)); // ✅ Updated action name
-    navigate("/achieve"); // ✅ Navigate to Achievements page
+    navigate("/achievements"); // ✅ Navigate to Achievements page
   };
 
   return (

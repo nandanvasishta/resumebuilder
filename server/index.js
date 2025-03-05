@@ -4,35 +4,36 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
 import { authRouter } from './routes/authRoutes.js';
+import aiRoutes from './routes/aiRoutes.js'; // Import AI routes
 
-// Load environment variables
 dotenv.config();
-
 const app = express();
 
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
+// ✅ Allow frontend (Vite) to access backend
 app.use(cors({
   origin: ["http://localhost:5173", "http://localhost:3000"], 
   credentials: true,
 }));
 
-// Database connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.log('Database error:', err));
+app.use(express.json());
+app.use(cookieParser());
 
-// Routes
-app.use('/auth', authRouter); // Use authentication routes
+// ✅ Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch((err) => console.error('❌ Database connection error:', err));
+
+// ✅ API Routes
+app.use('/auth', authRouter);
+app.use('/ai', aiRoutes); // AI Routes
 
 // Default route
 app.get('/', (req, res) => {
-  res.send("Server is running...");
+  res.send("🚀 Server is running...");
 });
 
-// Start server
+// ✅ Start Server
 const port = process.env.PORT || 5001;
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`✅ Server running on port ${port}`);
 });

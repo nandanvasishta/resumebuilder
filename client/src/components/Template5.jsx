@@ -1,11 +1,21 @@
 import React from "react";
 import "./ResumeStyles.css"; // Import CSS for styling
 
-const Template5 = ({ data }) => {
+const Template5 = ({ data, aiSummary }) => {
   if (!data) return <p>No Data Available</p>;
 
   return (
     <div className="resume-template-5">
+      <img
+        src={data.personal?.photo}
+        alt="Profile"
+        className="resume-photo"
+        onError={(e) => {
+          console.error("❌ Image failed to load:", e.target.src);
+          e.target.onerror = null;
+          e.target.src = "/default-profile.png";
+        }}
+      />
       <h1 className="resume-header">{data.personal?.name || "Your Name"}</h1>
       <p className="resume-contact">
         <a href={`mailto:${data.personal?.email || "your.email@example.com"}`}>
@@ -15,6 +25,14 @@ const Template5 = ({ data }) => {
           {data.personal?.phone || "123-456-7890"}
         </a>
       </p>
+
+      {/* AI Summary Section */}
+      {aiSummary && (
+        <div className="resume-section ai-summary">
+          <h2>Description</h2>
+          <p>{aiSummary}</p>
+        </div>
+      )}
 
       {/* Experience Section */}
       {Array.isArray(data.experience) && data.experience.length > 0 && (
